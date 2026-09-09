@@ -85,23 +85,23 @@ export function Hero({ onOpenDownloadModal }: HeroProps) {
         </p>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto mb-12 relative z-20">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-xl mx-auto mb-12 relative z-20">
           {/* Main Download Button Group */}
-          <div className="relative w-full sm:w-auto flex">
+          <div className="relative w-full sm:w-auto flex shrink-0">
             <button
               onClick={() => triggerDownload("setup")}
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-3 px-6 py-3.5 rounded-l-2xl text-sm font-semibold text-white bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 shadow-xl shadow-purple-600/30 border border-purple-400/30 transition-all hover:scale-[1.01] active:scale-[0.99]"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-3 px-6 py-3.5 rounded-l-2xl text-sm font-semibold text-white bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 shadow-xl shadow-purple-600/30 border border-purple-400/30 transition-all hover:scale-[1.01] active:scale-[0.99] whitespace-nowrap"
             >
-              <Download className="w-4 h-4 text-purple-200" />
-              <span>Download for Windows</span>
-              <span className="text-xs px-1.5 py-0.5 rounded bg-white/20 font-mono">
+              <Download className="w-4 h-4 text-purple-200 shrink-0" />
+              <span className="whitespace-nowrap">Download for Windows</span>
+              <span className="text-xs px-1.5 py-0.5 rounded bg-white/20 font-mono shrink-0">
                 {latestVersion}
               </span>
             </button>
 
             <button
               onClick={() => setDownloadDropdown(!downloadDropdown)}
-              className="px-3.5 py-3.5 rounded-r-2xl bg-purple-700/80 hover:bg-purple-600 text-white border-y border-r border-purple-400/30 transition-colors"
+              className="px-3.5 py-3.5 rounded-r-2xl bg-purple-700/80 hover:bg-purple-600 text-white border-y border-r border-purple-400/30 transition-colors shrink-0"
               aria-label="Download options"
             >
               <ChevronDown className={`w-4 h-4 transition-transform ${downloadDropdown ? "rotate-180" : ""}`} />
