@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { SilkLogo } from "./SilkLogo";
+import { ClipPlayerModal } from "./ClipPlayerModal";
 import "../styles/silk-app.css";
 
 export interface MockClip {
@@ -787,45 +788,13 @@ export function AppSimulator() {
           </div>
         )}
 
-        {/* Replay Video Player Modal */}
+        {/* Exact Silk Replay Video Player Modal */}
         {activePlayerClip && (
-          <div className="modal-overlay" onClick={() => setActivePlayerClip(null)}>
-            <div style={{ maxWidth: "680px", width: "95%", background: "var(--surface)", border: "1px solid var(--accent-line)", borderRadius: "16px", padding: "20px", color: "var(--text)", boxShadow: "0 25px 60px rgba(0,0,0,0.9)" }} onClick={(e) => e.stopPropagation()}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <SilkLogo size={18} />
-                  <span style={{ fontWeight: "700", fontSize: "14px" }}>{activePlayerClip.name}</span>
-                </div>
-                <button type="button" className="button button-quiet compact-button" onClick={() => setActivePlayerClip(null)}>
-                  ✕
-                </button>
-              </div>
-
-              <div style={{ aspectRatio: "16/9", background: activePlayerClip.bgGradient, borderRadius: "12px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", position: "relative", border: "1px solid var(--accent-line)" }}>
-                <span style={{ fontSize: "48px", color: "#fff", opacity: 0.85 }}>▶</span>
-                <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.8)", marginTop: "8px", fontFamily: "monospace" }}>
-                  Native Hardware Accelerated Playback • 60 FPS
-                </span>
-                <div style={{ position: "absolute", bottom: "12px", left: "16px", right: "16px", display: "flex", alignItems: "center", gap: "10px" }}>
-                  <div style={{ flex: 1, height: "4px", background: "rgba(255,255,255,0.2)", borderRadius: "999px", overflow: "hidden" }}>
-                    <div style={{ height: "100%", width: "35%", background: "var(--accent)" }} />
-                  </div>
-                  <span style={{ fontSize: "11px", fontFamily: "monospace" }}>
-                    00:21.0 / {formatBadgeDuration(activePlayerClip.durationMs)}
-                  </span>
-                </div>
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "14px" }}>
-                <div style={{ fontSize: "12px", color: "var(--text-muted)", fontFamily: "monospace" }}>
-                  <span>{activePlayerClip.gameName ?? "Desktop"}</span> • <span>{formatBytes(activePlayerClip.sizeBytes)}</span> • <span>H.264 / AAC WASAPI</span>
-                </div>
-                <button type="button" className="button button-secondary compact-button" onClick={() => setActivePlayerClip(null)}>
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
+          <ClipPlayerModal
+            clip={activePlayerClip}
+            onClose={() => setActivePlayerClip(null)}
+            theme={theme}
+          />
         )}
       </div>
     </section>
