@@ -1,5 +1,5 @@
 import confetti from "canvas-confetti";
-import { Download, X, ShieldCheck, Terminal } from "lucide-react";
+import { Download, X, Terminal } from "lucide-react";
 import { SilkLogo } from "./SilkLogo";
 
 interface DownloadModalProps {
@@ -15,7 +15,7 @@ export function DownloadModal({ isOpen, onClose }: DownloadModalProps) {
       particleCount: 50,
       spread: 60,
       origin: { y: 0.6 },
-      colors: ["#a855f7", "#6366f1", "#ec4899"],
+      colors: ["#a855f7", "#6366f1", "#ec4899", "#ff9a3c", "#ffffb3"],
     });
 
     const link = document.createElement("a");
@@ -33,11 +33,18 @@ export function DownloadModal({ isOpen, onClose }: DownloadModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-[#10111a] border border-white/15 rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl relative text-left animate-in fade-in zoom-in-95">
+      <div
+        className="border rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl relative text-left animate-in fade-in zoom-in-95 transition-colors duration-300"
+        style={{
+          backgroundColor: "var(--site-surface, #10111a)",
+          borderColor: "var(--site-border, rgba(255, 255, 255, 0.15))",
+        }}
+      >
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+          className="absolute top-6 right-6 p-2 rounded-xl hover:bg-white/10 transition-colors"
+          style={{ color: "var(--site-text-muted, #a1a1aa)" }}
           aria-label="Close"
         >
           <X className="w-5 h-5" />
@@ -45,14 +52,22 @@ export function DownloadModal({ isOpen, onClose }: DownloadModalProps) {
 
         {/* Modal Header */}
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 shadow-lg shadow-purple-600/20">
+          <div
+            className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all"
+            style={{
+              backgroundColor: "var(--site-accent-soft, rgba(168, 85, 247, 0.15))",
+              border: "1px solid var(--site-border, rgba(168, 85, 247, 0.3))",
+              color: "var(--site-accent, #a855f7)",
+              boxShadow: "0 0 20px var(--site-accent-glow, rgba(168, 85, 247, 0.2))",
+            }}
+          >
             <SilkLogo size={24} />
           </div>
           <div>
-            <h3 className="text-xl font-extrabold text-white tracking-tight">
+            <h3 className="text-xl font-extrabold tracking-tight" style={{ color: "var(--site-text, #ffffff)" }}>
               Download Silk Studio
             </h3>
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs" style={{ color: "var(--site-text-muted, #a1a1aa)" }}>
               Free & Open Source • Direct Download • No Account Required
             </p>
           </div>
@@ -61,19 +76,38 @@ export function DownloadModal({ isOpen, onClose }: DownloadModalProps) {
         {/* Download Options */}
         <div className="space-y-3 mb-6">
           {/* Windows Setup Installer */}
-          <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-950/40 via-indigo-950/20 to-purple-950/30 border border-purple-500/30 hover:border-purple-400/60 transition-all flex items-center justify-between gap-4">
+          <div
+            className="p-4 rounded-2xl border transition-all flex items-center justify-between gap-4"
+            style={{
+              backgroundColor: "var(--site-surface-raised, #181822)",
+              borderColor: "var(--site-border, rgba(168, 85, 247, 0.3))",
+            }}
+          >
             <div className="flex items-start gap-3">
-              <div className="p-2.5 rounded-xl bg-purple-600/20 text-purple-400 mt-0.5">
+              <div
+                className="p-2.5 rounded-xl mt-0.5"
+                style={{
+                  backgroundColor: "var(--site-accent-soft, rgba(168, 85, 247, 0.15))",
+                  color: "var(--site-accent, #a855f7)",
+                }}
+              >
                 <Download className="w-5 h-5" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-sm text-white">Windows Installer (.exe)</span>
-                  <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-semibold border border-purple-500/30">
+                  <span className="font-bold text-sm" style={{ color: "var(--site-text, #ffffff)" }}>Windows Installer (.exe)</span>
+                  <span
+                    className="px-2 py-0.5 rounded-full text-[10px] font-semibold border"
+                    style={{
+                      backgroundColor: "var(--site-accent-soft, rgba(168, 85, 247, 0.15))",
+                      borderColor: "var(--site-border, rgba(168, 85, 247, 0.3))",
+                      color: "var(--site-accent, #c084fc)",
+                    }}
+                  >
                     Recommended
                   </span>
                 </div>
-                <div className="text-xs text-zinc-400 mt-0.5 font-mono">
+                <div className="text-xs mt-0.5 font-mono" style={{ color: "var(--site-text-muted, #a1a1aa)" }}>
                   Silk_0.1.0_x64-setup.exe • 2.7 MB • NSIS
                 </div>
               </div>
@@ -81,7 +115,12 @@ export function DownloadModal({ isOpen, onClose }: DownloadModalProps) {
 
             <button
               onClick={() => handleDownload("setup")}
-              className="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-purple-600 hover:bg-purple-500 shadow-lg shadow-purple-600/30 transition-all hover:scale-105 shrink-0"
+              className="px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg transition-all hover:scale-105 shrink-0"
+              style={{
+                backgroundColor: "var(--site-accent, #a855f7)",
+                color: "var(--site-bg, #09090c)",
+                boxShadow: "0 4px 14px var(--site-accent-glow, rgba(168, 85, 247, 0.3))",
+              }}
             >
               Download
             </button>
@@ -95,47 +134,27 @@ export function DownloadModal({ isOpen, onClose }: DownloadModalProps) {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-sm text-white">Standalone Portable (.exe)</span>
+                  <span className="font-bold text-sm" style={{ color: "var(--site-text, #ffffff)" }}>Standalone Portable (.exe)</span>
                 </div>
-                <div className="text-xs text-zinc-400 mt-0.5 font-mono">
-                  silk.exe • 13.5 MB • Zero installation required
+                <div className="text-xs mt-0.5 font-mono" style={{ color: "var(--site-text-muted, #a1a1aa)" }}>
+                  Silk-Portable-Latest.exe • 13.5 MB • Zero install
                 </div>
               </div>
             </div>
 
             <button
               onClick={() => handleDownload("portable")}
-              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-200 bg-white/10 hover:bg-white/20 transition-all hover:scale-105 shrink-0"
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white bg-white/10 hover:bg-white/20 border border-white/10 transition-all shrink-0"
             >
               Download
             </button>
           </div>
         </div>
 
-        {/* System Requirements Note */}
-        <div className="p-4 rounded-2xl bg-black/40 border border-white/[0.06] text-xs text-zinc-400 space-y-2 mb-6">
-          <div className="flex items-center gap-2 text-zinc-300 font-semibold">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>System Requirements</span>
-          </div>
-          <ul className="list-disc list-inside space-y-1 text-[11px] text-zinc-400 font-mono">
-            <li>Windows 10 (version 1903+) or Windows 11 (64-bit)</li>
-            <li>DirectX 11 / 12 compatible GPU (NVIDIA NVENC, AMD AMF, or Intel QuickSync)</li>
-            <li>No administrator rights required (installs to user profile)</li>
-          </ul>
-        </div>
-
-        {/* Source link */}
-        <div className="flex items-center justify-between text-xs text-zinc-500 pt-2 border-t border-white/[0.08]">
-          <span>Looking for source code or Linux/macOS?</span>
-          <a
-            href="https://github.com/TrulyScarlet/silk-studio"
-            target="_blank"
-            rel="noreferrer"
-            className="text-purple-400 hover:text-purple-300 font-medium"
-          >
-            GitHub Repository →
-          </a>
+        {/* Verification hashes & Author Note */}
+        <div className="pt-4 border-t border-white/[0.08] flex items-center justify-between text-[11px]" style={{ color: "var(--site-text-muted, #71717a)" }}>
+          <span>Compatible with Windows 10 & 11 (64-bit)</span>
+          <span style={{ color: "var(--site-accent, #a855f7)" }}>SHA-256 Verified Release</span>
         </div>
       </div>
     </div>

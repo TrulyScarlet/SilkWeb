@@ -6,36 +6,73 @@ export function AuthorSection() {
   return (
     <section id="about" className="py-20 relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative rounded-3xl bg-gradient-to-b from-[#161726] to-[#0f101a] border border-white/10 p-8 sm:p-12 shadow-2xl overflow-hidden">
+        <div
+          className="relative rounded-3xl border p-8 sm:p-12 shadow-2xl overflow-hidden transition-colors duration-300"
+          style={{
+            backgroundColor: "var(--site-surface, #161726)",
+            borderColor: "var(--site-border, rgba(255, 255, 255, 0.1))",
+          }}
+        >
           {/* Ambient Glow */}
-          <div className="absolute top-0 right-0 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+          <div
+            className="absolute top-0 right-0 w-80 h-80 rounded-full blur-3xl pointer-events-none transition-all duration-500"
+            style={{
+              backgroundColor: "var(--site-accent-glow, rgba(168, 85, 247, 0.15))",
+            }}
+          />
 
           <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
             {/* Author Avatar Badge */}
             <div className="relative shrink-0">
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-tr from-purple-600 via-pink-600 to-indigo-500 p-1 shadow-xl shadow-purple-600/30">
-                <div className="w-full h-full rounded-[22px] bg-[#0d0e16] flex items-center justify-center text-purple-300">
-                  <SilkLogo size={48} color="#c084fc" />
+              <div
+                className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl p-1 shadow-xl transition-all duration-300"
+                style={{
+                  background: "linear-gradient(135deg, var(--site-accent, #c084fc), var(--site-accent-hover, #e879f9))",
+                  boxShadow: "0 10px 30px var(--site-accent-glow, rgba(168, 85, 247, 0.3))",
+                }}
+              >
+                <div
+                  className="w-full h-full rounded-[22px] flex items-center justify-center transition-colors duration-300"
+                  style={{
+                    backgroundColor: "var(--site-bg, #0d0e16)",
+                    color: "var(--site-accent, #c084fc)",
+                  }}
+                >
+                  <SilkLogo size={48} color="var(--site-accent, #c084fc)" />
                 </div>
               </div>
-              <div className="absolute -bottom-2 -right-2 px-2 py-0.5 rounded-full bg-pink-500 text-[10px] font-bold text-white uppercase tracking-wider shadow-md">
+              <div
+                className="absolute -bottom-2 -right-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md transition-colors duration-300"
+                style={{
+                  backgroundColor: "var(--site-accent, #ec4899)",
+                  color: "var(--site-bg, #09090c)",
+                }}
+              >
                 Author
               </div>
             </div>
 
             {/* Author Story */}
             <div className="text-center md:text-left flex-1">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-300 text-xs font-semibold mb-3">
-                <Heart className="w-3.5 h-3.5 fill-pink-400 text-pink-400" />
+              <div
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-3 transition-colors duration-300"
+                style={{
+                  backgroundColor: "var(--site-accent-soft, rgba(236, 72, 153, 0.1))",
+                  borderColor: "var(--site-border, rgba(236, 72, 153, 0.2))",
+                  color: "var(--site-accent, #f472b6)",
+                  borderWidth: "1px",
+                }}
+              >
+                <Heart className="w-3.5 h-3.5" style={{ fill: "var(--site-accent, #f472b6)", color: "var(--site-accent, #f472b6)" }} />
                 <span>Made by Scarlet</span>
               </div>
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-3">
+              <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-3" style={{ color: "var(--site-text, #ffffff)" }}>
                 Built with passion for gamers & creators.
               </h3>
-              <p className="text-sm text-zinc-300 leading-relaxed mb-6">
-                Hi, I’m <strong>Scarlet</strong>, the creator and author of <strong>Silk Studio</strong>. Like many of you, I was tired of bloated gaming capture apps that demanded account logins, pushed promotional spam, consumed gigabytes of background memory, or constantly uploaded telemetry to external servers.
+              <p className="text-sm leading-relaxed mb-6" style={{ color: "var(--site-text-muted, #d4d4d8)" }}>
+                Hi, I’m <strong style={{ color: "var(--site-text, #ffffff)" }}>Scarlet</strong>, the creator and author of <strong>Silk Studio</strong>. Like many of you, I was tired of bloated gaming capture apps that demanded account logins, pushed promotional spam, consumed gigabytes of background memory, or constantly uploaded telemetry to external servers.
               </p>
-              <p className="text-xs text-zinc-400 leading-relaxed mb-6">
+              <p className="text-xs leading-relaxed mb-6 opacity-80" style={{ color: "var(--site-text-muted, #a1a1aa)" }}>
                 Silk Studio was built in Rust and React to restore instant replay recording to what it should have always been: private, microsecond-fast, zero-overhead, and 100% open source.
               </p>
 
@@ -51,7 +88,7 @@ export function AuthorSection() {
                   <ExternalLink className="w-3 h-3 opacity-60" />
                 </a>
 
-                <span className="text-xs text-zinc-500 font-mono">
+                <span className="text-xs font-mono opacity-60" style={{ color: "var(--site-text-muted, #71717a)" }}>
                   Rust 1.80+ • Tauri 2.0 • React
                 </span>
               </div>

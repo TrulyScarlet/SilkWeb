@@ -78,26 +78,33 @@ export function ComparisonTable() {
   ];
 
   return (
-    <section id="comparison" className="py-24 bg-[#0a0b12] border-t border-white/[0.06]">
+    <section id="comparison" className="py-24 border-t transition-colors duration-300" style={{ backgroundColor: "var(--site-surface, #0a0b12)", borderColor: "var(--site-border-subtle, rgba(255, 255, 255, 0.06))" }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4" style={{ color: "var(--site-text, #ffffff)" }}>
             How does Silk Studio compare?
           </h2>
-          <p className="text-zinc-400 text-base sm:text-lg">
+          <p className="text-base sm:text-lg" style={{ color: "var(--site-text-muted, #9d9db5)" }}>
             Built from scratch to give you the speed of ShadowPlay with the privacy of OBS, without the bloat of gaming social platforms.
           </p>
         </div>
 
         {/* Comparison Table */}
-        <div className="overflow-x-auto rounded-2xl border border-white/[0.08] bg-[#11121d] shadow-2xl">
+        <div className="overflow-x-auto rounded-2xl border shadow-2xl transition-colors duration-300" style={{ backgroundColor: "var(--site-surface-raised, #11121d)", borderColor: "var(--site-border-subtle, rgba(255, 255, 255, 0.08))" }}>
           <table className="w-full text-left border-collapse min-w-[640px]">
             <thead>
-              <tr className="border-b border-white/[0.08] bg-[#161724]">
+              <tr className="border-b border-white/[0.08] bg-white/[0.02]">
                 <th className="p-4 sm:p-5 text-sm font-semibold text-zinc-300">Feature</th>
-                <th className="p-4 sm:p-5 text-sm font-bold text-purple-300 bg-purple-950/30 border-x border-purple-500/20">
+                <th
+                  className="p-4 sm:p-5 text-sm font-bold border-x transition-colors duration-300"
+                  style={{
+                    backgroundColor: "var(--site-accent-soft, rgba(168, 85, 247, 0.15))",
+                    borderColor: "var(--site-border, rgba(168, 85, 247, 0.2))",
+                    color: "var(--site-accent, #c084fc)",
+                  }}
+                >
                   <div className="flex items-center gap-2">
-                    <SilkLogo size={18} color="#c084fc" />
+                    <SilkLogo size={18} color="var(--site-accent, #c084fc)" />
                     <span>Silk Studio</span>
                   </div>
                 </th>
@@ -110,16 +117,23 @@ export function ComparisonTable() {
             <tbody className="divide-y divide-white/[0.05] text-xs sm:text-sm">
               {comparisons.map((row, idx) => (
                 <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
-                  <td className="p-4 sm:p-5 font-medium text-white">
+                  <td className="p-4 sm:p-5 font-medium" style={{ color: "var(--site-text, #ffffff)" }}>
                     <div>{row.feature}</div>
-                    <div className="text-[11px] text-zinc-500 mt-0.5">{row.detail}</div>
+                    <div className="text-[11px] mt-0.5 opacity-70" style={{ color: "var(--site-text-muted, #9d9db5)" }}>{row.detail}</div>
                   </td>
 
                   {/* Silk Studio */}
-                  <td className="p-4 sm:p-5 bg-purple-950/20 border-x border-purple-500/20 font-semibold text-purple-300">
-                    <div className="flex items-center gap-1.5 text-emerald-400">
-                      <Check className="w-4 h-4 text-purple-400" />
-                      <span className="text-white text-xs font-bold">Yes</span>
+                  <td
+                    className="p-4 sm:p-5 border-x font-semibold transition-colors duration-300"
+                    style={{
+                      backgroundColor: "var(--site-accent-soft, rgba(168, 85, 247, 0.08))",
+                      borderColor: "var(--site-border, rgba(168, 85, 247, 0.2))",
+                      color: "var(--site-accent, #c084fc)",
+                    }}
+                  >
+                    <div className="flex items-center gap-1.5 font-bold">
+                      <Check className="w-4 h-4" style={{ color: "var(--site-accent, #a855f7)" }} />
+                      <span className="text-xs">Yes</span>
                     </div>
                   </td>
 

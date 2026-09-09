@@ -278,7 +278,7 @@ export function AppSimulator({ theme: controlledTheme, onThemeChange }: AppSimul
             <div className="titlebar-left">
               <div className="titlebar-brand">
                 <span className="titlebar-logo-glyph" aria-hidden="true">
-                  <SilkLogo size={14} />
+                  <SilkLogo size={15} />
                 </span>
                 <span className="titlebar-app-title">SILK</span>
               </div>
@@ -325,21 +325,6 @@ export function AppSimulator({ theme: controlledTheme, onThemeChange }: AppSimul
               </div>
 
               <div className="topbar-meta">
-                {/* Theme Selector directly in topbar */}
-                <div style={{ display: "inline-flex", gap: "5px", marginRight: "12px" }}>
-                  {(["studio", "classic", "ember", "vamp"] as const).map((t) => (
-                    <button
-                      key={t}
-                      type="button"
-                      className={`button ${theme === t ? "button-primary" : "button-secondary"} compact-button`}
-                      style={{ textTransform: "capitalize", padding: "4px 10px", fontSize: "11px", fontWeight: theme === t ? "700" : "500" }}
-                        onClick={() => handleThemeChange(t)}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </div>
-
                 <button
                   type="button"
                   className="settings-open-btn"
