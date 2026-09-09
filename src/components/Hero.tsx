@@ -149,7 +149,13 @@ export function Hero({ onOpenDownloadModal, theme = "studio" }: HeroProps) {
                   onClick={() => triggerDownload("setup")}
                   className="w-full flex items-start gap-3 p-2.5 rounded-lg hover:bg-white/[0.06] text-left transition-colors"
                 >
-                  <div className="p-1.5 rounded-md bg-purple-500/20 text-purple-300 mt-0.5">
+                  <div
+                    className="p-1.5 rounded-md mt-0.5"
+                    style={{
+                      backgroundColor: "var(--site-accent-soft, rgba(168, 85, 247, 0.2))",
+                      color: "var(--site-accent, #c084fc)",
+                    }}
+                  >
                     <Download className="w-4 h-4" />
                   </div>
                   <div>
@@ -178,7 +184,8 @@ export function Hero({ onOpenDownloadModal, theme = "studio" }: HeroProps) {
                     setDownloadDropdown(false);
                     onOpenDownloadModal();
                   }}
-                  className="w-full text-center py-1.5 text-xs text-purple-400 hover:text-purple-300 font-medium"
+                  className="w-full text-center py-1.5 text-xs font-medium transition-colors"
+                  style={{ color: "var(--site-accent, #a855f7)" }}
                 >
                   View all release artifacts & hashes →
                 </button>
@@ -200,7 +207,7 @@ export function Hero({ onOpenDownloadModal, theme = "studio" }: HeroProps) {
 
         {/* Quick CLI command */}
         <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-zinc-950/70 border border-white/[0.08] text-xs font-mono text-zinc-400 max-w-lg mx-auto">
-          <span className="text-purple-400 select-none">$</span>
+          <span style={{ color: "var(--site-accent, #a855f7)" }} className="select-none">$</span>
           <span className="truncate">git clone https://github.com/TrulyScarlet/silk-studio</span>
           <button
             onClick={copyCargoInstall}
@@ -221,7 +228,7 @@ export function Hero({ onOpenDownloadModal, theme = "studio" }: HeroProps) {
         {/* Feature Highlights Badges */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-4xl mx-auto mt-16 pt-8 border-t border-white/[0.06]">
           <div className="flex flex-col items-center p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-            <div className="text-purple-400 mb-1">
+            <div className="mb-1" style={{ color: "var(--site-accent, #a855f7)" }}>
               <ShieldCheck className="w-4 h-4" />
             </div>
             <div className="text-xs font-semibold text-zinc-200">100% Local-First</div>
@@ -229,7 +236,7 @@ export function Hero({ onOpenDownloadModal, theme = "studio" }: HeroProps) {
           </div>
 
           <div className="flex flex-col items-center p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-            <div className="text-indigo-400 mb-1">
+            <div className="mb-1" style={{ color: "var(--site-accent, #a855f7)" }}>
               <Sparkles className="w-4 h-4" />
             </div>
             <div className="text-xs font-semibold text-zinc-200">GPU Accelerated</div>
@@ -237,15 +244,15 @@ export function Hero({ onOpenDownloadModal, theme = "studio" }: HeroProps) {
           </div>
 
           <div className="flex flex-col items-center p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-            <div className="text-pink-400 mb-1">
-              <SilkLogo size={16} />
+            <div className="mb-1" style={{ color: "var(--site-accent, #a855f7)" }}>
+              <SilkLogo size={16} color="currentColor" />
             </div>
             <div className="text-xs font-semibold text-zinc-200">Bounded Buffer</div>
             <div className="text-[11px] text-zinc-500">RAM-capped, zero disk wear</div>
           </div>
 
           <div className="flex flex-col items-center p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-            <div className="text-emerald-400 mb-1">
+            <div className="mb-1" style={{ color: "var(--site-accent, #a855f7)" }}>
               <Terminal className="w-4 h-4" />
             </div>
             <div className="text-xs font-semibold text-zinc-200">Open Source (Rust)</div>

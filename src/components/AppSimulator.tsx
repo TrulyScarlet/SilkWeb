@@ -260,14 +260,34 @@ export function AppSimulator({ theme: controlledTheme, onThemeChange }: AppSimul
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Heading */}
         <div className="text-center max-w-3xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold mb-3">
+          <div
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-3 transition-colors duration-300"
+            style={{
+              backgroundColor: "var(--site-accent-soft, rgba(168, 85, 247, 0.1))",
+              borderColor: "var(--site-border, rgba(168, 85, 247, 0.2))",
+              color: "var(--site-accent, #a855f7)",
+              borderWidth: "1px",
+            }}
+          >
             <span>Official Silk Desktop Interface</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-3">
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3" style={{ color: "var(--site-text, #ffffff)" }}>
             Interactive Desktop Experience
           </h2>
-          <p className="text-zinc-400 text-sm sm:text-base">
-            This simulator runs the exact CSS, DOM layout, themes, and design system of <strong>Silk Studio</strong>. Test the real capture deck, trigger replay saves (<kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 text-xs font-mono">Ctrl+Shift+F10</kbd>), and browse your local archive.
+          <p className="text-sm sm:text-base" style={{ color: "var(--site-text-muted, #9d9db5)" }}>
+            This simulator runs the exact CSS, DOM layout, themes, and design system of{" "}
+            <strong style={{ color: "var(--site-text, #ffffff)" }}>Silk Studio</strong>. Test the real capture deck, trigger replay saves (
+            <kbd
+              className="px-1.5 py-0.5 rounded text-xs font-mono"
+              style={{
+                backgroundColor: "var(--site-surface-raised, #18181f)",
+                color: "var(--site-accent, #a855f7)",
+                border: "1px solid var(--site-border, rgba(255, 255, 255, 0.1))",
+              }}
+            >
+              Ctrl+Shift+F10
+            </kbd>
+            ), and browse your local archive.
           </p>
         </div>
 
