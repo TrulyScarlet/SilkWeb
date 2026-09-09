@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { SilkLogo } from "./SilkLogo";
 import { ClipPlayerModal } from "./ClipPlayerModal";
+import { SettingsModal } from "./SettingsModal";
 import "../styles/silk-app.css";
 
 export interface MockClip {
@@ -732,73 +733,13 @@ export function AppSimulator({ theme: controlledTheme, onThemeChange }: AppSimul
           </main>
         </div>
 
-        {/* Settings Dialog Modal */}
-        {isSettingsOpen && (
-          <div className="modal-overlay" onClick={() => setIsSettingsOpen(false)}>
-            <div className="settings-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "600px", width: "90%", background: "var(--panel-bg)", border: "1px solid var(--accent-line)", borderRadius: "16px", padding: "24px", color: "var(--text)", boxShadow: "0 20px 50px rgba(0,0,0,0.8)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", borderBottom: "1px solid var(--accent-line)", paddingBottom: "12px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span style={{ fontSize: "18px" }}>⚙</span>
-                  <h2 style={{ fontSize: "18px", margin: 0, fontWeight: "700" }}>Settings</h2>
-                </div>
-                <button type="button" className="button button-quiet compact-button" onClick={() => setIsSettingsOpen(false)}>
-                  ✕
-                </button>
-              </div>
-
-              <div style={{ display: "grid", gap: "16px", fontSize: "13px" }}>
-                <div>
-                  <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: "var(--text-soft)" }}>
-                    Theme Accent
-                  </label>
-                  <div style={{ display: "flex", gap: "8px" }}>
-                    {(["studio", "classic", "ember", "vamp"] as const).map((t) => (
-                      <button
-                        key={t}
-                        type="button"
-                        className={`button ${theme === t ? "button-primary" : "button-secondary"}`}
-                        style={{ textTransform: "capitalize", flex: 1 }}
-                      onClick={() => handleThemeChange(t)}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label style={{ display: "block", marginBottom: "4px", fontWeight: "600", color: "var(--text-soft)" }}>
-                    Save Replay Hotkey
-                  </label>
-                  <input
-                    type="text"
-                    readOnly
-                    value="Ctrl+Shift+F10"
-                    style={{ width: "100%", padding: "8px 12px", background: "var(--surface-input)", border: "1px solid var(--accent-line)", borderRadius: "8px", color: "var(--accent)", fontFamily: "monospace" }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: "block", marginBottom: "4px", fontWeight: "600", color: "var(--text-soft)" }}>
-                    Clips Output Directory
-                  </label>
-                  <input
-                    type="text"
-                    readOnly
-                    value="C:\Users\Replay\Videos\Silk"
-                    style={{ width: "100%", padding: "8px 12px", background: "var(--surface-input)", border: "1px solid var(--accent-line)", borderRadius: "8px", color: "var(--text-muted)", fontFamily: "monospace" }}
-                  />
-                </div>
-
-                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "12px" }}>
-                  <button type="button" className="button button-primary" onClick={() => setIsSettingsOpen(false)}>
-                    Done
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Exact Silk Settings Dialog Modal */}
+        <SettingsModal
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          theme={theme}
+          onThemeChange={handleThemeChange}
+        />
 
         {/* Exact Silk Replay Video Player Modal */}
         {activePlayerClip && (

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
 import { AppSimulator, type AppTheme } from "./components/AppSimulator";
@@ -13,6 +13,24 @@ import { Footer } from "./components/Footer";
 export function App() {
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
   const [theme, setTheme] = useState<AppTheme>("studio");
+
+  // Dynamically update browser tab favicon to match the active theme
+  useEffect(() => {
+    let link = document.getElementById("app-favicon") as HTMLLinkElement | null;
+    if (!link) {
+      link = document.querySelector("link[rel~='icon']") as HTMLLinkElement | null;
+    }
+    if (!link) {
+      link = document.createElement("link");
+      link.rel = "icon";
+      link.id = "app-favicon";
+      document.head.appendChild(link);
+    }
+    const basePath = import.meta.env.BASE_URL || "/";
+    const prefix = basePath.endsWith("/") ? basePath : `${basePath}/`;
+    link.type = "image/png";
+    link.href = `${prefix}icons/icon-${theme}.png`;
+  }, [theme]);
 
   return (
     <div

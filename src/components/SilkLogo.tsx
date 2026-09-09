@@ -5,6 +5,8 @@ export type SilkLogoProps = {
   className?: string;
   style?: React.CSSProperties;
   color?: string;
+  theme?: "studio" | "classic" | "ember" | "vamp";
+  badge?: boolean;
 };
 
 export function SilkLogo({
@@ -12,16 +14,18 @@ export function SilkLogo({
   className = "",
   style,
   color = "currentColor",
+  theme: _theme,
+  badge = false,
 }: SilkLogoProps) {
-  return (
+  const pixelGlyph = (
     <svg
-      width={size}
-      height={size}
+      width={badge ? "68%" : size}
+      height={badge ? "68%" : size}
       viewBox="0 0 32 32"
       fill={color}
       xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      style={{ display: "inline-block", verticalAlign: "middle", flexShrink: 0, ...style }}
+      className={badge ? "" : className}
+      style={badge ? { display: "block" } : { display: "inline-block", verticalAlign: "middle", flexShrink: 0, ...style }}
       shapeRendering="crispEdges"
       aria-hidden="true"
     >
@@ -60,6 +64,34 @@ export function SilkLogo({
       <rect x="10" y="27" width="12" height="1" />
       <rect x="12" y="28" width="8" height="1" />
     </svg>
+  );
+
+  if (!badge) {
+    return pixelGlyph;
+  }
+
+  // Theme-reactive squircle app badge
+  return (
+    <div
+      className={`silk-app-badge-squircle ${className}`}
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "22%",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+        position: "relative",
+        background: "linear-gradient(135deg, var(--site-surface-raised, #18181f), var(--site-surface, #121216))",
+        border: "1px solid var(--site-border, rgba(168, 85, 247, 0.35))",
+        boxShadow: "0 4px 16px var(--site-accent-glow, rgba(168, 85, 247, 0.25))",
+        color: "var(--site-accent, #a855f7)",
+        ...style,
+      }}
+    >
+      {pixelGlyph}
+    </div>
   );
 }
 
