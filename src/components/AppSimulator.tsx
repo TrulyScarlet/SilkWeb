@@ -1,488 +1,827 @@
 import { useState, useEffect } from "react";
 import { SilkLogo } from "./SilkLogo";
-import { 
-  Play, 
-  Trash2, 
-  Bookmark, 
-  Volume2, 
-  Sparkles, 
-  Check, 
-  X, 
-  Minus, 
-  Square, 
-  Film,
-  HardDrive
-} from "lucide-react";
+import "../styles/silk-app.css";
 
-interface Clip {
+export interface MockClip {
   id: string;
-  title: string;
-  game: string;
-  duration: string;
-  size: string;
-  timeAgo: string;
+  name: string;
+  gameName: string | null;
+  durationMs: number;
+  sizeBytes: number;
+  dateStr: string;
   protected: boolean;
-  thumbnailGradient: string;
+  bgGradient: string;
 }
 
-const INITIAL_CLIPS: Clip[] = [
+const INITIAL_CLIPS: MockClip[] = [
   {
     id: "clip-1",
-    title: "1v4 Clutch Mirage A Site",
-    game: "Counter-Strike 2",
-    duration: "0:45",
-    size: "62.4 MB",
-    timeAgo: "12m ago",
+    name: "Clip_2026-09-08_18-42-10_TheFinals.mp4",
+    gameName: "The Finals",
+    durationMs: 60000,
+    sizeBytes: 136_314_880,
+    dateStr: "Sep 8, 2026",
     protected: true,
-    thumbnailGradient: "from-amber-950/70 via-stone-900 to-amber-900/40",
+    bgGradient: "linear-gradient(135deg, #3b1b0b, #19100c, #451a03)",
   },
   {
     id: "clip-2",
-    title: "Triple Headshot Haven Long",
-    game: "VALORANT",
-    duration: "0:30",
-    size: "41.8 MB",
-    timeAgo: "1h ago",
+    name: "Clip_2026-09-08_17-15-22_Valorant.mp4",
+    gameName: "Valorant",
+    durationMs: 45200,
+    sizeBytes: 99_614_720,
+    dateStr: "Sep 8, 2026",
     protected: false,
-    thumbnailGradient: "from-rose-950/70 via-stone-900 to-red-900/40",
+    bgGradient: "linear-gradient(135deg, #3f0d16, #1a080c, #4c0519)",
   },
   {
     id: "clip-3",
-    title: "Malenia No Hit Phase 2",
-    game: "Elden Ring",
-    duration: "1:00",
-    size: "88.1 MB",
-    timeAgo: "3h ago",
-    protected: true,
-    thumbnailGradient: "from-yellow-950/70 via-stone-900 to-amber-800/40",
+    name: "Clip_2026-09-08_15-02-45_ApexLegends.mp4",
+    gameName: "Apex Legends",
+    durationMs: 83400,
+    sizeBytes: 190_840_832,
+    dateStr: "Sep 8, 2026",
+    protected: false,
+    bgGradient: "linear-gradient(135deg, #1e1b4b, #0f0e21, #312e81)",
   },
   {
     id: "clip-4",
-    title: "Night City Highway Chase",
-    game: "Cyberpunk 2077",
-    duration: "0:55",
-    size: "74.5 MB",
-    timeAgo: "Yesterday",
+    name: "Clip_2026-09-07_21-10-00_Overwatch2.mp4",
+    gameName: "Overwatch 2",
+    durationMs: 30000,
+    sizeBytes: 67_108_864,
+    dateStr: "Sep 7, 2026",
     protected: false,
-    thumbnailGradient: "from-cyan-950/70 via-stone-900 to-purple-900/40",
+    bgGradient: "linear-gradient(135deg, #431407, #1c0a06, #7c2d12)",
+  },
+  {
+    id: "clip-5",
+    name: "Clip_2026-09-06_19-30-15_Desktop.mp4",
+    gameName: null,
+    durationMs: 15000,
+    sizeBytes: 33_554_432,
+    dateStr: "Sep 6, 2026",
+    protected: false,
+    bgGradient: "linear-gradient(135deg, #181825, #0c0d14, #26273b)",
   },
 ];
 
-type ThemeMode = "classic" | "ember" | "vamp";
+type AppTheme = "studio" | "classic" | "ember" | "vamp";
+
+function formatBytes(bytes: number): string {
+  if (bytes === 0) return "0 B";
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+}
+
+function formatBadgeDuration(durationMs: number): string {
+  const totalSeconds = durationMs / 1000;
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  const mm = String(minutes).padStart(2, "0");
+  const ss = String(Math.floor(seconds)).padStart(2, "0");
+  const tenths = Math.floor((seconds % 1) * 10);
+  return `${mm}:${ss}.${tenths}`;
+}
 
 export function AppSimulator() {
-  const [theme, setTheme] = useState<ThemeMode>("classic");
-  const [clips, setClips] = useState<Clip[]>(INITIAL_CLIPS);
-  const [hudNotification, setHudNotification] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
+  const [theme, setTheme] = useState<AppTheme>("studio");
+  const [clips, setClips] = useState<MockClip[]>(INITIAL_CLIPS);
+  const [selectedGame, setSelectedGame] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "duration" | "size">("newest");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [bufferSecs, setBufferSecs] = useState(60.0);
-  const [activeClipModal, setActiveClipModal] = useState<Clip | null>(null);
-  const [hotkeyTriggered, setHotkeyTriggered] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [clipFeedback, setClipFeedback] = useState<{
+    type: "saving" | "saved";
+    title: string;
+    detail: string;
+    duration: string;
+    size: string;
+    clip?: MockClip;
+  } | null>(null);
+  const [activePlayerClip, setActivePlayerClip] = useState<MockClip | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [editingClipId, setEditingClipId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
 
-  // Buffer ticker effect
+  // Buffer ticker
   useEffect(() => {
-    const interval = setInterval(() => {
+    const timer = setInterval(() => {
       setBufferSecs((prev) => {
         const next = prev + 0.1;
         return next > 60.0 ? 59.8 : Number(next.toFixed(1));
       });
-    }, 400);
-    return () => clearInterval(interval);
+    }, 450);
+    return () => clearInterval(timer);
   }, []);
 
-  // Listen to keyboard shortcut Ctrl+Shift+S on the page
+  // Keyboard shortcut Ctrl+Shift+F10 or Ctrl+Shift+S
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "s") {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "F10" || e.key.toLowerCase() === "s")) {
         e.preventDefault();
-        triggerClipSave("Global Hotkey [Ctrl+Shift+S]");
+        saveReplay();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [clips, isSaving]);
 
-  const triggerClipSave = (source = "Interactive Hotkey") => {
+  const saveReplay = () => {
     if (isSaving) return;
     setIsSaving(true);
-    setHotkeyTriggered(true);
-    setTimeout(() => setHotkeyTriggered(false), 600);
 
-    const newClipId = `clip-${Date.now()}`;
-    const newClip: Clip = {
-      id: newClipId,
-      title: `Saved Replay #${Math.floor(Math.random() * 899 + 100)}`,
-      game: "Active Display Capture",
-      duration: "0:60",
-      size: "79.2 MB",
-      timeAgo: "Just now",
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, "0")}-${String(now.getMinutes()).padStart(2, "0")}-${String(now.getSeconds()).padStart(2, "0")}`;
+    const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const newName = `Clip_${dateStr}_${timeStr}_Gameplay.mp4`;
+
+    const newClip: MockClip = {
+      id: `clip-${Date.now()}`,
+      name: newName,
+      gameName: selectedGame !== "all" && selectedGame !== "uncategorized" ? selectedGame : "Active Capture",
+      durationMs: 60000,
+      sizeBytes: 138_412_544,
+      dateStr: "Today",
       protected: false,
-      thumbnailGradient:
+      bgGradient:
         theme === "ember"
-          ? "from-orange-950/80 via-stone-900 to-amber-900/50"
+          ? "linear-gradient(135deg, #431407, #1c0a06, #7c2d12)"
           : theme === "vamp"
-          ? "from-pink-950/80 via-stone-900 to-purple-900/50"
-          : "from-purple-950/80 via-stone-900 to-indigo-900/50",
+          ? "linear-gradient(135deg, #4a044e, #1b021f, #701a75)"
+          : theme === "classic"
+          ? "linear-gradient(135deg, #272718, #13140c, #3a3b22)"
+          : "linear-gradient(135deg, #2e1065, #12052b, #4c1d95)",
     };
+
+    setClipFeedback({
+      type: "saving",
+      title: "Saving Replay...",
+      detail: "Muxing video and audio streams into MP4 container",
+      duration: "01:00.0",
+      size: "138.4 MB",
+    });
 
     setTimeout(() => {
       setClips((prev) => [newClip, ...prev]);
       setIsSaving(false);
-      setHudNotification(
-        `Clip Saved! • ${newClip.title}.mp4 (${newClip.size}) via ${source}`
-      );
-      setTimeout(() => {
-        setHudNotification(null);
-      }, 4000);
-    }, 450);
+      setClipFeedback({
+        type: "saved",
+        title: "Replay Saved!",
+        detail: `Saved to C:\\Users\\Replay\\Videos\\Silk\\${newClip.name}`,
+        duration: "01:00.0",
+        size: "138.4 MB",
+        clip: newClip,
+      });
+    }, 600);
   };
 
-  const toggleProtected = (id: string) => {
+  const toggleProtected = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     setClips((prev) =>
       prev.map((c) => (c.id === id ? { ...c, protected: !c.protected } : c))
     );
   };
 
-  const deleteClip = (id: string) => {
+  const deleteClip = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     setClips((prev) => prev.filter((c) => c.id !== id));
   };
 
-  const themeColors = {
-    classic: {
-      accent: "text-purple-400",
-      accentBg: "bg-purple-600",
-      accentBorder: "border-purple-500/40",
-      pillBg: "bg-purple-500/10 text-purple-300 border-purple-500/20",
-      glow: "shadow-purple-600/20",
-    },
-    ember: {
-      accent: "text-orange-400",
-      accentBg: "bg-orange-600",
-      accentBorder: "border-orange-500/40",
-      pillBg: "bg-orange-500/10 text-orange-300 border-orange-500/20",
-      glow: "shadow-orange-600/20",
-    },
-    vamp: {
-      accent: "text-pink-400",
-      accentBg: "bg-pink-600",
-      accentBorder: "border-pink-500/40",
-      pillBg: "bg-pink-500/10 text-pink-300 border-pink-500/20",
-      glow: "shadow-pink-600/20",
-    },
-  }[theme];
+  const startEditing = (clip: MockClip, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingClipId(clip.id);
+    setEditingName(clip.name);
+  };
+
+  const saveRename = (id: string) => {
+    if (editingName.trim()) {
+      setClips((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, name: editingName.trim() } : c))
+      );
+    }
+    setEditingClipId(null);
+  };
+
+  // Filter and sort
+  const games = [
+    { id: "all", name: "All Games", count: clips.length },
+    { id: "The Finals", name: "The Finals", count: clips.filter((c) => c.gameName === "The Finals").length },
+    { id: "Valorant", name: "Valorant", count: clips.filter((c) => c.gameName === "Valorant").length },
+    { id: "Apex Legends", name: "Apex Legends", count: clips.filter((c) => c.gameName === "Apex Legends").length },
+    { id: "Overwatch 2", name: "Overwatch 2", count: clips.filter((c) => c.gameName === "Overwatch 2").length },
+    { id: "uncategorized", name: "Uncategorized", count: clips.filter((c) => !c.gameName).length },
+  ];
+
+  const filteredClips = clips.filter((clip) => {
+    if (selectedGame === "uncategorized") {
+      if (clip.gameName) return false;
+    } else if (selectedGame !== "all") {
+      if (clip.gameName !== selectedGame) return false;
+    }
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const matchName = clip.name.toLowerCase().includes(q);
+      const matchGame = (clip.gameName ?? "").toLowerCase().includes(q);
+      return matchName || matchGame;
+    }
+    return true;
+  });
+
+  const sortedClips = [...filteredClips].sort((a, b) => {
+    if (sortBy === "duration") return b.durationMs - a.durationMs;
+    if (sortBy === "size") return b.sizeBytes - a.sizeBytes;
+    if (sortBy === "oldest") return a.id.localeCompare(b.id);
+    return b.id.localeCompare(a.id);
+  });
+
+  const totalBytes = clips.reduce((acc, c) => acc + c.sizeBytes, 0);
 
   return (
     <section id="simulator" className="py-20 relative">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.05] border border-white/10 text-zinc-300 text-xs font-medium mb-4">
-            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-            <span>Interactive Desktop UI Simulator</span>
+        {/* Section Heading */}
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold mb-3">
+            <span>Official Silk Desktop Interface</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
-            Test Silk Studio right here in your browser
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-3">
+            Interactive Desktop Experience
           </h2>
-          <p className="text-zinc-400 text-base sm:text-lg">
-            Experience the real desktop UI. Switch themes, test the in-game native overlay HUD, and trigger a replay save with your keyboard (<kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-200 border border-zinc-700 text-xs font-mono">Ctrl+Shift+S</kbd>).
+          <p className="text-zinc-400 text-sm sm:text-base">
+            This simulator runs the exact CSS, DOM layout, themes, and design system of <strong>Silk Studio</strong>. Test the real capture deck, trigger replay saves (<kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 text-xs font-mono">Ctrl+Shift+F10</kbd>), and browse your local archive.
           </p>
         </div>
 
-        {/* The Desktop Window Simulator Frame */}
-        <div className="relative rounded-2xl bg-[#0e0f17] border border-white/10 shadow-2xl overflow-hidden transition-all duration-300">
-          {/* Simulated In-Game HUD Toast Alert */}
-          {hudNotification && (
-            <div className="absolute top-16 right-6 z-50 animate-bounce duration-300">
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-black/90 backdrop-blur-xl border border-emerald-500/50 shadow-2xl shadow-emerald-500/20 text-white text-xs">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                <div className="flex flex-col">
-                  <span className="font-semibold text-emerald-400">Silk Native HUD</span>
-                  <span className="text-zinc-300 font-mono text-[11px]">{hudNotification}</span>
-                </div>
-                <button
-                  onClick={() => setHudNotification(null)}
-                  className="ml-2 text-zinc-500 hover:text-white"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
+        {/* The Exact Silk Studio App Window */}
+        <div className="silk-desktop-window" data-theme={theme}>
+          {/* Exact Silk TitleBar */}
+          <header className="silk-titlebar">
+            <div className="titlebar-left">
+              <div className="titlebar-brand">
+                <span className="titlebar-logo-glyph" aria-hidden="true">
+                  <SilkLogo size={14} />
+                </span>
+                <span className="titlebar-app-title">SILK</span>
               </div>
             </div>
-          )}
 
-          {/* TitleBar */}
-          <div className="h-10 bg-[#090a10] border-b border-white/[0.08] flex items-center justify-between px-3 select-none">
-            {/* Left: Brand & Icon */}
-            <div className="flex items-center gap-2">
-              <div className={`w-5 h-5 flex items-center justify-center ${themeColors.accent}`}>
-                <SilkLogo size={16} />
-              </div>
-              <span className="text-xs font-semibold text-zinc-200 tracking-wide">
-                Silk Studio
-              </span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-white/[0.05] text-zinc-500 font-mono">
-                v0.1.0-release
+            <div className="titlebar-center">
+              <span className="titlebar-target-pill">
+                <span className="target-pill-icon">🖥️</span>
+                <span className="target-pill-text">Display 1 (2560x1440 @ 60 Hz)</span>
               </span>
             </div>
 
-            {/* Center: Replay Buffer Status Strip */}
-            <div className="hidden sm:flex items-center gap-3 text-[11px] font-mono">
-              <div className="flex items-center gap-1.5 text-zinc-400">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                <span className="text-zinc-200 font-semibold">REC BUFFER</span>
-              </div>
-              <span className="text-zinc-600">•</span>
-              <span className="text-zinc-300">{bufferSecs.toFixed(1)}s / 60.0s</span>
-              <span className="text-zinc-600">•</span>
-              <span className="text-zinc-400">2560x1440 @ 60 FPS</span>
-              <span className="text-zinc-600">•</span>
-              <span className="text-purple-400 font-medium">NVENC H.264</span>
-            </div>
-
-            {/* Right: Theme Switcher & Windows Controls */}
-            <div className="flex items-center gap-3">
-              {/* Theme Picker */}
-              <div className="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/[0.06] text-[10px]">
-                <button
-                  onClick={() => setTheme("classic")}
-                  className={`px-2 py-0.5 rounded transition-colors ${
-                    theme === "classic"
-                      ? "bg-purple-600 text-white font-medium"
-                      : "text-zinc-400 hover:text-white"
-                  }`}
-                >
-                  Classic
-                </button>
-                <button
-                  onClick={() => setTheme("ember")}
-                  className={`px-2 py-0.5 rounded transition-colors ${
-                    theme === "ember"
-                      ? "bg-orange-600 text-white font-medium"
-                      : "text-zinc-400 hover:text-white"
-                  }`}
-                >
-                  Ember
-                </button>
-                <button
-                  onClick={() => setTheme("vamp")}
-                  className={`px-2 py-0.5 rounded transition-colors ${
-                    theme === "vamp"
-                      ? "bg-pink-600 text-white font-medium"
-                      : "text-zinc-400 hover:text-white"
-                  }`}
-                >
-                  Vamp
-                </button>
-              </div>
-
-              {/* Windows Window Controls */}
-              <div className="flex items-center text-zinc-500">
-                <button className="p-1.5 hover:bg-white/10 hover:text-white rounded transition-colors">
-                  <Minus className="w-3 h-3" />
-                </button>
-                <button className="p-1.5 hover:bg-white/10 hover:text-white rounded transition-colors">
-                  <Square className="w-2.5 h-2.5" />
-                </button>
-                <button className="p-1.5 hover:bg-red-500/80 hover:text-white rounded transition-colors">
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Action Ribbon / Control Bar */}
-          <div className="p-4 bg-[#11121d] border-b border-white/[0.06] flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              {/* Big Interactive Hotkey Button */}
-              <button
-                onClick={() => triggerClipSave("Simulator Button Click")}
-                disabled={isSaving}
-                className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white shadow-lg transition-all ${
-                  hotkeyTriggered ? "scale-95 ring-2 ring-white" : "hover:scale-[1.02]"
-                } ${
-                  theme === "ember"
-                    ? "bg-gradient-to-r from-orange-600 to-amber-600 shadow-orange-600/30"
-                    : theme === "vamp"
-                    ? "bg-gradient-to-r from-pink-600 to-purple-600 shadow-pink-600/30"
-                    : "bg-gradient-to-r from-purple-600 to-indigo-600 shadow-purple-600/30"
-                }`}
-              >
-                <Film className={`w-4 h-4 ${isSaving ? "animate-spin" : ""}`} />
-                <span>{isSaving ? "Encoding Replay..." : "Save Instant Replay"}</span>
-                <kbd className="px-1.5 py-0.5 rounded bg-black/30 border border-white/20 text-[10px] font-mono">
-                  Ctrl+Shift+S
-                </kbd>
+            <div className="titlebar-controls" aria-label="Window controls">
+              <button type="button" className="titlebar-btn titlebar-btn-minimize" title="Minimize">
+                <svg width="11" height="1" viewBox="0 0 11 1" fill="none">
+                  <rect width="11" height="1" fill="currentColor" />
+                </svg>
               </button>
-
-              <div className="hidden md:flex items-center gap-2 text-xs text-zinc-400 bg-white/[0.03] px-3 py-2 rounded-xl border border-white/[0.05]">
-                <HardDrive className="w-3.5 h-3.5 text-zinc-500" />
-                <span>Saved Clips Directory: <code className="text-zinc-300">D:\Clips\Silk</code></span>
-              </div>
+              <button type="button" className="titlebar-btn titlebar-btn-maximize" title="Maximize">
+                <svg width="10" height="10" viewBox="0 0 10 1" fill="none">
+                  <rect x="0.55" y="0.55" width="8.9" height="8.9" stroke="currentColor" strokeWidth="1.1" />
+                </svg>
+              </button>
+              <button type="button" className="titlebar-btn titlebar-btn-close" title="Close">
+                <svg width="10" height="10" viewBox="0 0 10 1" fill="none">
+                  <path d="M0.5 0.5L9.5 9.5M9.5 0.5L0.5 9.5" stroke="currentColor" strokeWidth="1.1" />
+                </svg>
+              </button>
             </div>
+          </header>
 
-            {/* Quick Diagnostics badges */}
-            <div className="flex items-center gap-3 text-xs text-zinc-400">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-[11px]">
-                <Check className="w-3 h-3" />
-                <span>GPU Mux Ready</span>
-              </div>
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.06] text-zinc-300 font-mono text-[11px]">
-                <Volume2 className="w-3 h-3 text-purple-400" />
-                <span>2 Audio Streams</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Main App Content: Clip Library Grid */}
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                  Saved Replays ({clips.length})
+          {/* Exact App Shell */}
+          <main className="app-shell">
+            {/* Exact Topbar */}
+            <header className="topbar">
+              <div className="brand-lockup">
+                <span className="brand-mark" aria-hidden="true">
+                  <SilkLogo size={22} />
                 </span>
-                <span className="text-[11px] text-zinc-500 font-mono">
-                  Total storage: {(clips.length * 62.5).toFixed(0)} MB
-                </span>
+                <div>
+                  <p className="eyebrow">LOCAL REPLAY STUDIO</p>
+                  <h1>Silk</h1>
+                </div>
               </div>
-              <div className="text-xs text-zinc-400">
-                Click any clip to preview or click bookmark to protect from auto-delete
-              </div>
-            </div>
 
-            {/* Clip Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {clips.map((clip) => (
-                <div
-                  key={clip.id}
-                  className="group relative rounded-xl bg-[#141522] border border-white/[0.06] hover:border-white/20 transition-all duration-200 overflow-hidden shadow-lg flex flex-col"
+              <div className="topbar-meta">
+                {/* Theme Selector directly in topbar */}
+                <div style={{ display: "inline-flex", gap: "5px", marginRight: "12px" }}>
+                  {(["studio", "classic", "ember", "vamp"] as const).map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      className={`button ${theme === t ? "button-primary" : "button-secondary"} compact-button`}
+                      style={{ textTransform: "capitalize", padding: "4px 10px", fontSize: "11px", fontWeight: theme === t ? "700" : "500" }}
+                      onClick={() => setTheme(t)}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  className="settings-open-btn"
+                  onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                  title="Open Settings"
                 >
-                  {/* Thumbnail Banner */}
-                  <div
-                    onClick={() => setActiveClipModal(clip)}
-                    className={`h-28 bg-gradient-to-br ${clip.thumbnailGradient} relative flex items-center justify-center cursor-pointer overflow-hidden`}
-                  >
-                    {/* Grid texture effect */}
-                    <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:12px_12px]" />
+                  <span className="settings-gear-icon" aria-hidden="true">⚙</span>
+                  <span className="settings-btn-text">Settings</span>
+                </button>
+              </div>
+            </header>
 
-                    {/* Play button overlay on hover */}
-                    <div className="w-10 h-10 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all shadow-xl">
-                      <Play className="w-4 h-4 ml-0.5 fill-white" />
-                    </div>
-
-                    {/* Duration badge */}
-                    <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/80 text-[10px] font-mono text-zinc-200 border border-white/10">
-                      {clip.duration}
-                    </div>
-
-                    {/* Game badge */}
-                    <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/70 backdrop-blur-md text-[10px] font-semibold text-zinc-300 border border-white/10">
-                      {clip.game}
-                    </div>
+            {/* Exact Hero Status Deck */}
+            <section className="hero-status-deck">
+              <div className="hero-control-card">
+                <div className="hero-control-top">
+                  <div className="hero-status-pill-group">
+                    <span className="state-badge state-buffering">
+                      <span className="state-dot" aria-hidden="true" />
+                      {isSaving ? "Saving Replay" : "Buffering Gameplay"}
+                    </span>
+                    <span className="live-buffer-pill">
+                      <span className="live-dot" /> LIVE BUFFER
+                    </span>
                   </div>
 
-                  {/* Clip Info Details */}
-                  <div className="p-3 flex-1 flex flex-col justify-between">
-                    <div>
-                      <h4 className="text-xs font-semibold text-white truncate group-hover:text-purple-300 transition-colors">
-                        {clip.title}
-                      </h4>
-                      <div className="flex items-center gap-2 text-[11px] text-zinc-400 font-mono mt-1">
-                        <span>{clip.size}</span>
-                        <span>•</span>
-                        <span>{clip.timeAgo}</span>
-                      </div>
-                    </div>
-
-                    {/* Clip Actions */}
-                    <div className="flex items-center justify-between pt-3 mt-2 border-t border-white/[0.06]">
-                      <button
-                        onClick={() => toggleProtected(clip.id)}
-                        className={`p-1.5 rounded-md text-xs transition-colors ${
-                          clip.protected
-                            ? "text-amber-400 bg-amber-400/10"
-                            : "text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.05]"
-                        }`}
-                        title={clip.protected ? "Protected from purge" : "Bookmark clip"}
-                      >
-                        <Bookmark className={`w-3.5 h-3.5 ${clip.protected ? "fill-amber-400" : ""}`} />
-                      </button>
-
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => setActiveClipModal(clip)}
-                          className="p-1.5 rounded-md text-zinc-400 hover:text-white hover:bg-white/[0.05] transition-colors"
-                          title="Play clip"
-                        >
-                          <Play className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => deleteClip(clip.id)}
-                          className="p-1.5 rounded-md text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                          title="Delete clip"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
+                  <div className="hero-meta-summary">
+                    <span className="meta-stat">
+                      <small>Target</small>
+                      <strong>Display 1 (2560x1440)</strong>
+                    </span>
+                    <span className="meta-stat">
+                      <small>FPS</small>
+                      <strong>60 fps</strong>
+                    </span>
+                    <span className="meta-stat">
+                      <small>Bitrate</small>
+                      <strong>45 Mbps</strong>
+                    </span>
+                    <span className="meta-stat">
+                      <small>Audio</small>
+                      <strong>2 tracks</strong>
+                    </span>
+                    <span className="meta-stat">
+                      <small>Encoder</small>
+                      <strong>AMD Radeon RX 9070 XT (Hardware)</strong>
+                    </span>
+                    <span className="meta-stat">
+                      <small>Buffer</small>
+                      <strong>{bufferSecs.toFixed(0)}s / 60s</strong>
+                    </span>
+                    <span className="meta-stat">
+                      <small>Fidelity</small>
+                      <strong>Standard</strong>
+                    </span>
+                    <span className="meta-stat">
+                      <small>Saved</small>
+                      <strong>{clips.length} clips</strong>
+                    </span>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
+
+                <div className="hero-action-row">
+                  <button
+                    className="button button-primary hero-save-btn is-live-btn"
+                    type="button"
+                    onClick={saveReplay}
+                    disabled={isSaving}
+                  >
+                    <span className="save-btn-icon" aria-hidden="true">💾</span>
+                    <span className="save-btn-label">{isSaving ? "Saving..." : "Save Replay"}</span>
+                    <span className="button-hint">Ctrl+Shift+F10</span>
+                  </button>
+
+                  <button className="button button-secondary compact-button" type="button">
+                    Start Capture
+                  </button>
+                  <button className="button button-quiet compact-button" type="button">
+                    Stop
+                  </button>
+                </div>
+
+                {/* Exact Buffer Gauge */}
+                <div className="hero-buffer-bar-wrapper">
+                  <div className="hero-buffer-header">
+                    <span className="hero-buffer-label">Replay Buffer Fill</span>
+                    <span className="hero-buffer-time">
+                      {bufferSecs.toFixed(1)}s / 60s (100%)
+                    </span>
+                  </div>
+                  <div className="buffer-gauge-track" role="progressbar">
+                    <div className="buffer-gauge-fill is-ready" style={{ width: "100%" }} />
+                  </div>
+                </div>
+
+                {/* Exact Clip Feedback Banner */}
+                {clipFeedback && (
+                  <div className={`clip-feedback-banner feedback-${clipFeedback.type}`} role="status">
+                    <div className="feedback-icon-col">
+                      {clipFeedback.type === "saving" ? (
+                        <span className="feedback-spinner" aria-hidden="true" />
+                      ) : (
+                        <span className="feedback-success-badge" aria-hidden="true">✓</span>
+                      )}
+                    </div>
+                    <div className="feedback-body">
+                      <div className="feedback-header-line">
+                        <strong>{clipFeedback.title}</strong>
+                        <span className="feedback-pill">{clipFeedback.duration}</span>
+                        <span className="feedback-pill">{clipFeedback.size}</span>
+                      </div>
+                      <p className="feedback-detail-text">{clipFeedback.detail}</p>
+                    </div>
+                    <div className="feedback-actions">
+                      {clipFeedback.clip && (
+                        <button
+                          type="button"
+                          className="button button-secondary compact-button"
+                          onClick={() => setActivePlayerClip(clipFeedback.clip!)}
+                        >
+                          Open
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        className="feedback-dismiss-button"
+                        onClick={() => setClipFeedback(null)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* Exact Hero Library Section */}
+            <section className="panel library-panel hero-library-section">
+              <div className="panel-heading library-heading">
+                <div className="library-title-block">
+                  <div className="library-eyebrow-row">
+                    <p className="eyebrow">LOCAL ARCHIVE</p>
+                    <span className="library-count-pill">{clips.length} Clips</span>
+                  </div>
+                  <h2>Clip Library</h2>
+                  <p className="panel-subtitle">
+                    Instant replays saved locally to disk in full native resolution.
+                  </p>
+                </div>
+
+                <div className="library-toolbar">
+                  {/* Search */}
+                  <div className="library-search-box">
+                    <span className="search-icon" aria-hidden="true">🔍</span>
+                    <input
+                      type="text"
+                      placeholder="Search clips..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="library-search-input"
+                    />
+                    {searchQuery && (
+                      <button type="button" className="search-clear-btn" onClick={() => setSearchQuery("")}>
+                        ×
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Sort */}
+                  <div className="library-sort-box">
+                    <label className="library-sort-label">Sort:</label>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value as any)}
+                      className="library-select"
+                    >
+                      <option value="newest">Newest First</option>
+                      <option value="oldest">Oldest First</option>
+                      <option value="duration">Longest Duration</option>
+                      <option value="size">Largest File Size</option>
+                    </select>
+                  </div>
+
+                  {/* View Mode Toggle */}
+                  <div className="view-mode-toggle">
+                    <button
+                      type="button"
+                      className={`view-toggle-btn ${viewMode === "grid" ? "active" : ""}`}
+                      onClick={() => setViewMode("grid")}
+                    >
+                      <span className="view-icon">⊞</span> Grid
+                    </button>
+                    <button
+                      type="button"
+                      className={`view-toggle-btn ${viewMode === "list" ? "active" : ""}`}
+                      onClick={() => setViewMode("list")}
+                    >
+                      <span className="view-icon">☰</span> List
+                    </button>
+                  </div>
+
+                  {/* Refresh */}
+                  <button className="button button-secondary compact-button refresh-library-btn" type="button">
+                    ↻ Refresh
+                  </button>
+                </div>
+              </div>
+
+              {/* Exact Game Filter Chips */}
+              <div className="library-chips-bar" role="tablist">
+                {games.map((g) => (
+                  <button
+                    key={g.id}
+                    type="button"
+                    className={`game-chip ${selectedGame === g.id ? "active" : ""}`}
+                    onClick={() => setSelectedGame(g.id)}
+                  >
+                    <span className="chip-label">{g.name}</span>
+                    <span className="chip-count">{g.count}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Exact Storage Summary */}
+              <div className="storage-summary">
+                <span>
+                  <small>Output Folder</small>
+                  <strong>C:\Users\Replay\Videos\Silk</strong>
+                </span>
+                <span>
+                  <small>Storage Used</small>
+                  <strong>{formatBytes(totalBytes)} / No quota</strong>
+                </span>
+                <span>
+                  <small>Auto Deletion</small>
+                  <strong className="text-accent">Off</strong>
+                </span>
+              </div>
+
+              {/* Grid / List of clips */}
+              {viewMode === "grid" ? (
+                <div className="clip-grid">
+                  {sortedClips.map((clip) => (
+                    <article key={clip.id} className="clip-card">
+                      <div
+                        className="clip-card-thumb-container"
+                        onClick={() => setActivePlayerClip(clip)}
+                      >
+                        <div
+                          className="clip-thumb-wrapper clip-thumb-fallback is-clickable"
+                          style={{ background: clip.bgGradient }}
+                        >
+                          <span className="clip-thumb-icon" aria-hidden="true">▶</span>
+                          {clip.gameName && (
+                            <span className="clip-thumb-game-badge">{clip.gameName}</span>
+                          )}
+                          {clip.protected && (
+                            <span className="clip-thumb-protected-badge" title="Protected clip">
+                              🛡
+                            </span>
+                          )}
+                          <span className="clip-thumb-duration-badge">
+                            {formatBadgeDuration(clip.durationMs)}
+                          </span>
+                          <div className="clip-thumb-play-overlay">
+                            <div className="play-circle-icon">
+                              <span className="play-triangle">▶</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="clip-card-body">
+                        <div className="clip-card-header">
+                          {editingClipId === clip.id ? (
+                            <form
+                              className="clip-inline-rename-form"
+                              onSubmit={(e) => {
+                                e.preventDefault();
+                                saveRename(clip.id);
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <input
+                                type="text"
+                                className="clip-inline-rename-input"
+                                value={editingName}
+                                autoFocus
+                                onChange={(e) => setEditingName(e.target.value)}
+                                onBlur={() => saveRename(clip.id)}
+                              />
+                            </form>
+                          ) : (
+                            <div className="clip-title-group">
+                              <h3
+                                className="clip-card-title"
+                                onDoubleClick={(e) => startEditing(clip, e)}
+                                title="Double-click to rename"
+                              >
+                                {clip.name}
+                              </h3>
+                              <button
+                                type="button"
+                                className="clip-rename-pencil-btn"
+                                onClick={(e) => startEditing(clip, e)}
+                                title="Rename clip"
+                              >
+                                ✎
+                              </button>
+                            </div>
+                          )}
+
+                          <div className="clip-card-btn-group" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              type="button"
+                              className={`clip-favorite-btn ${clip.protected ? "is-active" : ""}`}
+                              onClick={(e) => toggleProtected(clip.id, e)}
+                              title={clip.protected ? "Protected clip" : "Protect from auto-delete"}
+                            >
+                              <span className="favorite-star-icon">
+                                {clip.protected ? "★" : "☆"}
+                              </span>
+                            </button>
+                            <button
+                              type="button"
+                              className="clip-delete-btn"
+                              onClick={(e) => deleteClip(clip.id, e)}
+                              title="Delete clip"
+                            >
+                              <span className="delete-trash-icon">🗑</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="clip-card-meta">
+                          <span className="clip-card-date">{clip.dateStr}</span>
+                          <span className="meta-separator">•</span>
+                          <span className="clip-card-duration">{formatBadgeDuration(clip.durationMs)}</span>
+                          <span className="meta-separator">•</span>
+                          <span className="clip-card-size">{formatBytes(clip.sizeBytes)}</span>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="clip-list">
+                  {sortedClips.map((clip) => (
+                    <article key={clip.id} className="clip-row">
+                      <div
+                        className="clip-row-thumb"
+                        style={{ width: "100px", height: "56px", background: clip.bgGradient, position: "relative", borderRadius: "6px", cursor: "pointer" }}
+                        onClick={() => setActivePlayerClip(clip)}
+                      >
+                        <span style={{ position: "absolute", bottom: "3px", right: "5px", fontSize: "10px", fontFamily: "monospace", color: "#fff", background: "rgba(0,0,0,0.7)", padding: "1px 4px", borderRadius: "3px" }}>
+                          {formatBadgeDuration(clip.durationMs)}
+                        </span>
+                      </div>
+
+                      <div className="clip-row-body" style={{ flex: 1, paddingLeft: "12px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <h3 style={{ fontSize: "13px", fontWeight: "600", margin: 0, color: "var(--text)" }}>
+                            {clip.name}
+                          </h3>
+                          <div style={{ display: "flex", gap: "6px" }}>
+                            <button
+                              type="button"
+                              className={`clip-favorite-btn ${clip.protected ? "is-active" : ""}`}
+                              onClick={(e) => toggleProtected(clip.id, e)}
+                            >
+                              {clip.protected ? "★" : "☆"}
+                            </button>
+                            <button
+                              type="button"
+                              className="clip-delete-btn"
+                              onClick={(e) => deleteClip(clip.id, e)}
+                            >
+                              🗑
+                            </button>
+                          </div>
+                        </div>
+                        <div style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "4px" }}>
+                          <span>{clip.gameName ?? "Desktop"}</span> • <span>{clip.dateStr}</span> • <span>{formatBytes(clip.sizeBytes)}</span>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </section>
+          </main>
         </div>
 
-        {/* Modal for Simulated Clip Playback */}
-        {activeClipModal && (
-          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#12121d] border border-white/10 rounded-2xl max-w-lg w-full p-6 shadow-2xl text-left relative animate-in fade-in zoom-in-95">
-              <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                <div className="flex items-center gap-2">
-                  <Film className="w-4 h-4 text-purple-400" />
-                  <span className="font-semibold text-white text-sm">
-                    {activeClipModal.title}
-                  </span>
+        {/* Settings Dialog Modal */}
+        {isSettingsOpen && (
+          <div className="modal-overlay" onClick={() => setIsSettingsOpen(false)}>
+            <div className="settings-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "600px", width: "90%", background: "var(--panel-bg)", border: "1px solid var(--accent-line)", borderRadius: "16px", padding: "24px", color: "var(--text)", boxShadow: "0 20px 50px rgba(0,0,0,0.8)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", borderBottom: "1px solid var(--accent-line)", paddingBottom: "12px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "18px" }}>⚙</span>
+                  <h2 style={{ fontSize: "18px", margin: 0, fontWeight: "700" }}>Settings</h2>
                 </div>
-                <button
-                  onClick={() => setActiveClipModal(null)}
-                  className="p-1 text-zinc-400 hover:text-white rounded-lg"
-                >
-                  <X className="w-4 h-4" />
+                <button type="button" className="button button-quiet compact-button" onClick={() => setIsSettingsOpen(false)}>
+                  ✕
                 </button>
               </div>
 
-              <div className={`mt-4 h-48 rounded-xl bg-gradient-to-br ${activeClipModal.thumbnailGradient} flex flex-col items-center justify-center border border-white/10 relative`}>
-                <Play className="w-12 h-12 text-white/70 animate-pulse" />
-                <span className="text-xs text-zinc-300 font-mono mt-2">
-                  Simulated 60 FPS Replay Video Player
-                </span>
-                <div className="absolute bottom-3 left-4 right-4 flex items-center gap-3">
-                  <div className="h-1 flex-1 bg-white/20 rounded-full overflow-hidden">
-                    <div className="h-full bg-purple-500 w-1/3" />
+              <div style={{ display: "grid", gap: "16px", fontSize: "13px" }}>
+                <div>
+                  <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: "var(--text-soft)" }}>
+                    Theme Accent
+                  </label>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    {(["studio", "classic", "ember", "vamp"] as const).map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        className={`button ${theme === t ? "button-primary" : "button-secondary"}`}
+                        style={{ textTransform: "capitalize", flex: 1 }}
+                        onClick={() => setTheme(t)}
+                      >
+                        {t}
+                      </button>
+                    ))}
                   </div>
-                  <span className="text-[10px] font-mono text-zinc-300">0:15 / {activeClipModal.duration}</span>
+                </div>
+
+                <div>
+                  <label style={{ display: "block", marginBottom: "4px", fontWeight: "600", color: "var(--text-soft)" }}>
+                    Save Replay Hotkey
+                  </label>
+                  <input
+                    type="text"
+                    readOnly
+                    value="Ctrl+Shift+F10"
+                    style={{ width: "100%", padding: "8px 12px", background: "var(--surface-input)", border: "1px solid var(--accent-line)", borderRadius: "8px", color: "var(--accent)", fontFamily: "monospace" }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", marginBottom: "4px", fontWeight: "600", color: "var(--text-soft)" }}>
+                    Clips Output Directory
+                  </label>
+                  <input
+                    type="text"
+                    readOnly
+                    value="C:\Users\Replay\Videos\Silk"
+                    style={{ width: "100%", padding: "8px 12px", background: "var(--surface-input)", border: "1px solid var(--accent-line)", borderRadius: "8px", color: "var(--text-muted)", fontFamily: "monospace" }}
+                  />
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "12px" }}>
+                  <button type="button" className="button button-primary" onClick={() => setIsSettingsOpen(false)}>
+                    Done
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Replay Video Player Modal */}
+        {activePlayerClip && (
+          <div className="modal-overlay" onClick={() => setActivePlayerClip(null)}>
+            <div style={{ maxWidth: "680px", width: "95%", background: "var(--surface)", border: "1px solid var(--accent-line)", borderRadius: "16px", padding: "20px", color: "var(--text)", boxShadow: "0 25px 60px rgba(0,0,0,0.9)" }} onClick={(e) => e.stopPropagation()}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <SilkLogo size={18} />
+                  <span style={{ fontWeight: "700", fontSize: "14px" }}>{activePlayerClip.name}</span>
+                </div>
+                <button type="button" className="button button-quiet compact-button" onClick={() => setActivePlayerClip(null)}>
+                  ✕
+                </button>
+              </div>
+
+              <div style={{ aspectRatio: "16/9", background: activePlayerClip.bgGradient, borderRadius: "12px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", position: "relative", border: "1px solid var(--accent-line)" }}>
+                <span style={{ fontSize: "48px", color: "#fff", opacity: 0.85 }}>▶</span>
+                <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.8)", marginTop: "8px", fontFamily: "monospace" }}>
+                  Native Hardware Accelerated Playback • 60 FPS
+                </span>
+                <div style={{ position: "absolute", bottom: "12px", left: "16px", right: "16px", display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div style={{ flex: 1, height: "4px", background: "rgba(255,255,255,0.2)", borderRadius: "999px", overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: "35%", background: "var(--accent)" }} />
+                  </div>
+                  <span style={{ fontSize: "11px", fontFamily: "monospace" }}>
+                    00:21.0 / {formatBadgeDuration(activePlayerClip.durationMs)}
+                  </span>
                 </div>
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-2 text-xs font-mono text-zinc-400">
-                <div className="p-2 rounded bg-black/40 border border-white/5">
-                  Game: <span className="text-white">{activeClipModal.game}</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "14px" }}>
+                <div style={{ fontSize: "12px", color: "var(--text-muted)", fontFamily: "monospace" }}>
+                  <span>{activePlayerClip.gameName ?? "Desktop"}</span> • <span>{formatBytes(activePlayerClip.sizeBytes)}</span> • <span>H.264 / AAC WASAPI</span>
                 </div>
-                <div className="p-2 rounded bg-black/40 border border-white/5">
-                  Resolution: <span className="text-white">1440p (DirectX 11)</span>
-                </div>
-                <div className="p-2 rounded bg-black/40 border border-white/5">
-                  Codec: <span className="text-white">H.264 High Profile</span>
-                </div>
-                <div className="p-2 rounded bg-black/40 border border-white/5">
-                  Audio: <span className="text-white">Stereo 48kHz WASAPI</span>
-                </div>
-              </div>
-
-              <div className="mt-5 flex justify-end gap-2">
-                <button
-                  onClick={() => setActiveClipModal(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-white transition-colors"
-                >
-                  Close Player
+                <button type="button" className="button button-secondary compact-button" onClick={() => setActivePlayerClip(null)}>
+                  Close
                 </button>
               </div>
             </div>
