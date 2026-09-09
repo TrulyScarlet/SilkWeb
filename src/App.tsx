@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
-import { AppSimulator } from "./components/AppSimulator";
+import { AppSimulator, type AppTheme } from "./components/AppSimulator";
 import { BufferVisualizer } from "./components/BufferVisualizer";
 import { FeaturesGrid } from "./components/FeaturesGrid";
 import { AudioEngineSection } from "./components/AudioEngineSection";
@@ -12,18 +12,36 @@ import { Footer } from "./components/Footer";
 
 export function App() {
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+  const [theme, setTheme] = useState<AppTheme>("studio");
 
   return (
-    <div className="min-h-screen bg-[#09090c] text-white selection:bg-purple-500/30 selection:text-purple-200">
-      {/* Top Navigation */}
-      <Navbar onOpenDownload={() => setDownloadModalOpen(true)} />
+    <div
+      className="min-h-screen transition-colors duration-300 relative"
+      data-theme={theme}
+      style={{
+        backgroundColor: "var(--site-bg, #09090c)",
+        color: "var(--site-text, #ececf1)",
+      }}
+    >
+      {/* Top Navigation with synchronized theme */}
+      <Navbar
+        onOpenDownload={() => setDownloadModalOpen(true)}
+        theme={theme}
+        onThemeChange={setTheme}
+      />
 
       <main>
         {/* Hero Section */}
-        <Hero onOpenDownloadModal={() => setDownloadModalOpen(true)} />
+        <Hero
+          onOpenDownloadModal={() => setDownloadModalOpen(true)}
+          theme={theme}
+        />
 
-        {/* Live Interactive App Simulator */}
-        <AppSimulator />
+        {/* Live Interactive App Simulator - Changing theme here updates the whole site! */}
+        <AppSimulator
+          theme={theme}
+          onThemeChange={setTheme}
+        />
 
         {/* Bounded Buffer Architecture */}
         <BufferVisualizer />

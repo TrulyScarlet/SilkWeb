@@ -67,7 +67,12 @@ const INITIAL_CLIPS: MockClip[] = [
   },
 ];
 
-type AppTheme = "studio" | "classic" | "ember" | "vamp";
+export type AppTheme = "studio" | "classic" | "ember" | "vamp";
+
+export interface AppSimulatorProps {
+  theme?: AppTheme;
+  onThemeChange?: (theme: AppTheme) => void;
+}
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) return "0 B";
@@ -87,8 +92,15 @@ function formatBadgeDuration(durationMs: number): string {
   return `${mm}:${ss}.${tenths}`;
 }
 
-export function AppSimulator() {
-  const [theme, setTheme] = useState<AppTheme>("studio");
+export function AppSimulator({ theme: controlledTheme, onThemeChange }: AppSimulatorProps = {}) {
+  const [internalTheme, setInternalTheme] = useState<AppTheme>("studio");
+  const theme = controlledTheme ?? internalTheme;
+
+  const handleThemeChange = (t: AppTheme) => {
+    setInternalTheme(t);
+    onThemeChange?.(t);
+  };
+
   const [clips, setClips] = useState<MockClip[]>(INITIAL_CLIPS);
   const [selectedGame, setSelectedGame] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -320,7 +332,7 @@ export function AppSimulator() {
                       type="button"
                       className={`button ${theme === t ? "button-primary" : "button-secondary"} compact-button`}
                       style={{ textTransform: "capitalize", padding: "4px 10px", fontSize: "11px", fontWeight: theme === t ? "700" : "500" }}
-                      onClick={() => setTheme(t)}
+                        onClick={() => handleThemeChange(t)}
                     >
                       {t}
                     </button>
@@ -746,7 +758,7 @@ export function AppSimulator() {
                         type="button"
                         className={`button ${theme === t ? "button-primary" : "button-secondary"}`}
                         style={{ textTransform: "capitalize", flex: 1 }}
-                        onClick={() => setTheme(t)}
+                      onClick={() => handleThemeChange(t)}
                       >
                         {t}
                       </button>

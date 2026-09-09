@@ -3,11 +3,14 @@ import confetti from "canvas-confetti";
 import { Download, ShieldCheck, Sparkles, ChevronDown, Check, Terminal, ExternalLink } from "lucide-react";
 import { SilkLogo } from "./SilkLogo";
 
+import type { AppTheme } from "./AppSimulator";
+
 interface HeroProps {
   onOpenDownloadModal: () => void;
+  theme?: AppTheme;
 }
 
-export function Hero({ onOpenDownloadModal }: HeroProps) {
+export function Hero({ onOpenDownloadModal, theme = "studio" }: HeroProps) {
   const [downloadDropdown, setDownloadDropdown] = useState(false);
   const [copiedCurl, setCopiedCurl] = useState(false);
   const [latestVersion, setLatestVersion] = useState("v0.1.0");
@@ -56,30 +59,48 @@ export function Hero({ onOpenDownloadModal }: HeroProps) {
   return (
     <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
       {/* Ambient background glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[400px] bg-gradient-to-tr from-purple-600/15 via-indigo-600/20 to-pink-500/10 rounded-full blur-[120px] pointer-events-none -z-10" />
-      <div className="absolute top-12 left-1/4 w-[300px] h-[300px] bg-purple-900/10 rounded-full blur-[100px] pointer-events-none -z-10" />
-      <div className="absolute top-20 right-1/4 w-[350px] h-[350px] bg-blue-600/10 rounded-full blur-[100px] pointer-events-none -z-10" />
+      <div
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[400px] rounded-full blur-[120px] pointer-events-none -z-10 transition-all duration-500"
+        style={{ background: "radial-gradient(circle, var(--site-glow-1, rgba(168, 85, 247, 0.18)) 0%, transparent 70%)" }}
+      />
+      <div
+        className="absolute top-12 left-1/4 w-[320px] h-[320px] rounded-full blur-[100px] pointer-events-none -z-10 transition-all duration-500"
+        style={{ background: "radial-gradient(circle, var(--site-glow-2, rgba(236, 72, 153, 0.12)) 0%, transparent 70%)" }}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Release / Status Pill */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-medium mb-8 backdrop-blur-md hover:border-purple-500/40 transition-colors shadow-sm cursor-default">
-          <Sparkles className="w-3.5 h-3.5 text-purple-400 animate-pulse" />
+        <div
+          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium mb-8 backdrop-blur-md transition-all shadow-sm cursor-default"
+          style={{
+            backgroundColor: "var(--site-accent-soft, rgba(168, 85, 247, 0.1))",
+            borderColor: "var(--site-border, rgba(168, 85, 247, 0.2))",
+            color: "var(--site-accent, #a855f7)",
+            borderWidth: "1px",
+          }}
+        >
+          <Sparkles className="w-3.5 h-3.5 animate-pulse" style={{ color: "var(--site-accent, #a855f7)" }} />
           <span>Silk Studio {latestVersion} is live</span>
-          <span className="w-1 h-1 rounded-full bg-purple-400/50" />
-          <span className="text-zinc-400">Windows 10 & 11 (x64)</span>
+          <span className="w-1 h-1 rounded-full opacity-60" style={{ backgroundColor: "var(--site-accent, #a855f7)" }} />
+          <span style={{ color: "var(--site-text-muted, #a1a1aa)" }}>Windows 10 & 11 (x64)</span>
         </div>
 
         {/* Main Headline */}
-        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-5xl mx-auto leading-[1.1] mb-6">
+        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight max-w-5xl mx-auto leading-[1.1] mb-6" style={{ color: "var(--site-text, #ffffff)" }}>
           Instant replay.{" "}
-          <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-300 bg-clip-text text-transparent">
+          <span
+            className="bg-clip-text text-transparent transition-all duration-300"
+            style={{
+              backgroundImage: "linear-gradient(135deg, var(--site-accent, #c084fc), #ffffff, var(--site-accent-hover, #e879f9))",
+            }}
+          >
             Zero bloat.
           </span>
           <br className="hidden sm:inline" /> Keep every frame local.
         </h1>
 
         {/* Subtitle */}
-        <p className="text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed font-normal">
+        <p className="text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-normal" style={{ color: "var(--site-text-muted, #a1a1aa)" }}>
           A Windows-first desktop recorder that continuously buffers your display and audio into memory.
           Press your hotkey to save the last 60 seconds — lightning fast, GPU-accelerated, and free from accounts or cloud complexity.
         </p>
@@ -90,18 +111,32 @@ export function Hero({ onOpenDownloadModal }: HeroProps) {
           <div className="relative w-full sm:w-auto flex shrink-0">
             <button
               onClick={() => triggerDownload("setup")}
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-3 px-6 py-3.5 rounded-l-2xl text-sm font-semibold text-white bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 shadow-xl shadow-purple-600/30 border border-purple-400/30 transition-all hover:scale-[1.01] active:scale-[0.99] whitespace-nowrap"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-3 px-6 py-3.5 rounded-l-2xl text-sm font-semibold shadow-xl transition-all hover:scale-[1.01] active:scale-[0.99] whitespace-nowrap"
+              style={{
+                backgroundColor: "var(--site-accent, #a855f7)",
+                color: theme === "classic" ? "#0e0f0b" : "#ffffff",
+                boxShadow: "0 10px 30px var(--site-accent-glow, rgba(168, 85, 247, 0.3))",
+                borderColor: "var(--site-border, rgba(255, 255, 255, 0.2))",
+                borderWidth: "1px",
+              }}
             >
-              <Download className="w-4 h-4 text-purple-200 shrink-0" />
+              <Download className="w-4 h-4 shrink-0" />
               <span className="whitespace-nowrap">Download for Windows</span>
-              <span className="text-xs px-1.5 py-0.5 rounded bg-white/20 font-mono shrink-0">
+              <span className="text-xs px-1.5 py-0.5 rounded bg-black/20 font-mono shrink-0">
                 {latestVersion}
               </span>
             </button>
 
             <button
               onClick={() => setDownloadDropdown(!downloadDropdown)}
-              className="px-3.5 py-3.5 rounded-r-2xl bg-purple-700/80 hover:bg-purple-600 text-white border-y border-r border-purple-400/30 transition-colors shrink-0"
+              className="px-3.5 py-3.5 rounded-r-2xl transition-colors shrink-0"
+              style={{
+                backgroundColor: "var(--site-accent, #a855f7)",
+                color: theme === "classic" ? "#0e0f0b" : "#ffffff",
+                borderWidth: "1px 1px 1px 0",
+                borderColor: "var(--site-border, rgba(255, 255, 255, 0.2))",
+                filter: "brightness(0.92)",
+              }}
               aria-label="Download options"
             >
               <ChevronDown className={`w-4 h-4 transition-transform ${downloadDropdown ? "rotate-180" : ""}`} />
