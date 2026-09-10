@@ -12,6 +12,7 @@ const PRESETS: Preset[] = [
   { value: 60, label: "60s", desc: "Standard" },
   { value: 120, label: "120s", desc: "Extended" },
   { value: 180, label: "180s", desc: "3 Mins" },
+  { value: 240, label: "240s", desc: "4 Mins" },
   { value: 300, label: "300s", desc: "5 Mins" },
 ];
 
