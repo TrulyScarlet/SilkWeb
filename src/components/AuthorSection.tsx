@@ -70,7 +70,7 @@ export function AuthorSection() {
                 Built with passion for gamers & creators.
               </h3>
               <p className="text-sm leading-relaxed mb-6" style={{ color: "var(--site-text-muted, #d4d4d8)" }}>
-                Hi, I’m <strong style={{ color: "var(--site-text, #ffffff)" }}>Scarlet</strong>, the creator and author of <strong>Silk Studio</strong>. Like many of you, I was tired of bloated gaming capture apps that demanded account logins, pushed promotional spam, consumed gigabytes of background memory, or constantly uploaded telemetry to external servers.
+                Hey, I'm <strong>Scarlet</strong>. I created <strong>Silk</strong> because modern clipping apps have gotten ridiculously bloated with logins, ads, and background resource hogging. Silk is simple: free, open-source, lightweight on RAM, 100% local, and customizable to your taste.
               </p>
               <p className="text-xs leading-relaxed mb-6 opacity-80" style={{ color: "var(--site-text-muted, #a1a1aa)" }}>
                 Silk Studio was built in Rust and React to restore instant replay recording to what it should have always been: private, microsecond-fast, zero-overhead, and 100% open source.
