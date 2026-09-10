@@ -1,4 +1,4 @@
-import { Check, X } from "lucide-react";
+import { Check, X, Info } from "lucide-react";
 import { SilkLogo } from "./SilkLogo";
 
 export function ComparisonTable() {
@@ -10,16 +10,16 @@ export function ComparisonTable() {
       obs: true,
       medal: false,
       steelseries: false,
-      detail: "Silk works immediately without email or login",
+      detail: "Ready to clip immediately; no email, registration, or login ever prompted",
     },
     {
-      feature: "100% Local-First (No Cloud)",
+      feature: "100% Local-First (No Telemetry)",
       silk: true,
       shadowplay: false,
       obs: true,
       medal: false,
       steelseries: false,
-      detail: "No video uploads or telemetry to remote servers",
+      detail: "Zero video uploads to cloud servers and zero behavioral analytics",
     },
     {
       feature: "Open Source Codebase",
@@ -28,57 +28,73 @@ export function ComparisonTable() {
       obs: true,
       medal: false,
       steelseries: false,
-      detail: "Transparent Rust + Tauri architecture on GitHub",
+      detail: "Transparent, auditable Rust + Tauri architecture hosted publicly on GitHub",
     },
     {
-      feature: "Bounded Ring Buffer (Zero SSD Wear)",
-      silk: true,
-      shadowplay: true,
-      obs: true,
-      medal: false,
-      steelseries: false,
-      detail: "Streams kept in RAM ring buffer until hotkey save",
-    },
-    {
-      feature: "Hardware-Accelerated (NVENC / AMF / QSV)",
-      silk: true,
-      shadowplay: true,
-      obs: true,
-      medal: true,
-      steelseries: true,
-      detail: "Offloads encoding to GPU hardware for zero game lag",
-    },
-    {
-      feature: "Sub-Millisecond In-Game HUD Overlay",
-      silk: true,
-      shadowplay: true,
-      obs: false,
-      medal: true,
-      steelseries: true,
-      detail: "Confirms clip saved without alt-tabbing",
-    },
-    {
-      feature: "Lightweight Memory Footprint (<120MB)",
+      feature: "RAM-Only Bounded Buffer (Zero SSD Wear)",
       silk: true,
       shadowplay: false,
-      obs: false,
+      obs: true,
       medal: false,
       steelseries: false,
-      detail: "No Electron bloat, no heavy background helper daemons",
+      detail: "Buffers frames purely in system RAM; does not burn continuous SSD write cycles while idle",
+    },
+    {
+      feature: "Universal GPU Support (NVIDIA, AMD, Intel)",
+      silk: true,
+      shadowplay: false,
+      obs: true,
+      medal: true,
+      steelseries: true,
+      detail: "Hardware acceleration across all vendors (ShadowPlay is locked to NVIDIA only)",
     },
     {
       feature: "Discrete Multi-Track Audio (Game + Mic)",
       silk: true,
       shadowplay: true,
       obs: true,
+      medal: true,
+      steelseries: true,
+      detail: "Records separate audio streams for game and voice into MP4/MKV for post-editing",
+    },
+    {
+      feature: "In-Game Save HUD Notification",
+      silk: true,
+      shadowplay: true,
+      obs: false,
+      medal: true,
+      steelseries: true,
+      detail: "Instant visual toast confirms clip is saved without having to alt-tab",
+    },
+    {
+      feature: "Lightweight Resource Footprint (<100MB)",
+      silk: true,
+      shadowplay: false,
+      obs: false,
       medal: false,
       steelseries: false,
-      detail: "Separate tracks in MP4/MKV for post-editing",
+      detail: "No heavy Electron/Chromium runtime or multiple helper background daemons",
+    },
+    {
+      feature: "No Social Feeds, Ads, or Upsells",
+      silk: true,
+      shadowplay: false,
+      obs: true,
+      medal: false,
+      steelseries: false,
+      detail: "Pure clipping utility with zero promotional ads, social feeds, or premium upsells",
     },
   ];
 
   return (
-    <section id="comparison" className="py-24 border-t transition-colors duration-300" style={{ backgroundColor: "var(--site-surface, #0a0b12)", borderColor: "var(--site-border-subtle, rgba(255, 255, 255, 0.06))" }}>
+    <section
+      id="comparison"
+      className="py-24 border-t transition-colors duration-300"
+      style={{
+        backgroundColor: "var(--site-surface, #0a0b12)",
+        borderColor: "var(--site-border-subtle, rgba(255, 255, 255, 0.06))",
+      }}
+    >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4" style={{ color: "var(--site-text, #ffffff)" }}>
@@ -90,8 +106,14 @@ export function ComparisonTable() {
         </div>
 
         {/* Comparison Table */}
-        <div className="overflow-x-auto rounded-2xl border shadow-2xl transition-colors duration-300" style={{ backgroundColor: "var(--site-surface-raised, #11121d)", borderColor: "var(--site-border-subtle, rgba(255, 255, 255, 0.08))" }}>
-          <table className="w-full text-left border-collapse min-w-[640px]">
+        <div
+          className="overflow-x-auto rounded-2xl border shadow-2xl transition-colors duration-300"
+          style={{
+            backgroundColor: "var(--site-surface-raised, #11121d)",
+            borderColor: "var(--site-border-subtle, rgba(255, 255, 255, 0.08))",
+          }}
+        >
+          <table className="w-full text-left border-collapse min-w-[680px]">
             <thead>
               <tr className="border-b border-white/[0.08] bg-white/[0.02]">
                 <th className="p-4 sm:p-5 text-sm font-semibold text-zinc-300">Feature</th>
@@ -119,7 +141,9 @@ export function ComparisonTable() {
                 <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
                   <td className="p-4 sm:p-5 font-medium" style={{ color: "var(--site-text, #ffffff)" }}>
                     <div>{row.feature}</div>
-                    <div className="text-[11px] mt-0.5 opacity-70" style={{ color: "var(--site-text-muted, #9d9db5)" }}>{row.detail}</div>
+                    <div className="text-[11px] mt-0.5 opacity-70" style={{ color: "var(--site-text-muted, #9d9db5)" }}>
+                      {row.detail}
+                    </div>
                   </td>
 
                   {/* Silk Studio */}
@@ -176,6 +200,14 @@ export function ComparisonTable() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Honest, transparent disclosure callout */}
+        <div className="mt-8 flex items-start gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs text-zinc-400">
+          <Info className="w-4 h-4 text-zinc-400 flex-shrink-0 mt-0.5" />
+          <p className="leading-relaxed">
+            Every app listed has its own strengths: <strong>OBS Studio</strong> is the gold standard for full broadcasting and scene customization, <strong>Medal.tv</strong> provides cloud sharing and community editing, and <strong>SteelSeries GG</strong> integrates complex virtual audio routing. <strong>Silk Studio</strong> is built for players who want instant replays with zero accounts, zero cloud dependencies, pure local storage, and minimal system overhead.
+          </p>
         </div>
       </div>
     </section>

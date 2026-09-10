@@ -5,9 +5,9 @@ import {
   Tv, 
   Radio, 
   Zap, 
-  FolderArchive,
-  Palette,
-  Terminal
+  FolderArchive, 
+  Palette, 
+  Terminal 
 } from "lucide-react";
 
 export function FeaturesGrid() {
@@ -34,13 +34,13 @@ export function FeaturesGrid() {
       icon: Tv,
       title: "Sub-Millisecond In-Game HUD",
       description:
-        "Instant confirmation of saved clips with a native DirectX/GDI overlay. Never alt-tab or wonder whether your clip was saved during intense competitive rounds.",
+        "Instant confirmation of saved clips with a native DirectX overlay. Never alt-tab or wonder whether your clip was saved during intense competitive rounds.",
     },
     {
       icon: Layers,
       title: "Strictly Bounded Memory Engine",
       description:
-        "Engineered in Rust with deterministic memory allocation. Verified in 8-hour endurance stress tests. Zero memory leaks, zero crash buildup during all-night gaming sessions.",
+        "Engineered in Rust with deterministic memory allocation. Tested against unbounded resource growth during long gaming sessions. Zero memory leaks, zero crash buildup.",
     },
     {
       icon: FolderArchive,
@@ -52,7 +52,7 @@ export function FeaturesGrid() {
       icon: Palette,
       title: "Built-In Theme Engine",
       description:
-        "Customize Silk with Classic Dark, Ember Warm Neon, or Vamp Cyberpunk styles. Includes custom pixel-art and modern vector icons to match your desktop aesthetic.",
+        "Customize Silk with Studio Violet, Classic Gold, Autumn Ember, or Vamp Cyberpunk styles. Includes custom pixel-art and modern vector icons to match your desktop aesthetic.",
     },
     {
       icon: Terminal,
